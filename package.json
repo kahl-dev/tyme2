@@ -12,6 +12,9 @@
   "engines": {
     "node": ">=4"
   },
+  "files": [
+		"index.js"
+  ],
   "keywords": ["tyme2"],
   "dependencies": {
     "run-jxa": "^1.1.0"
