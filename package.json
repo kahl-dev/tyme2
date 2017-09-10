@@ -1,0 +1,19 @@
+{
+  "name": "tyme2",
+  "version": "1.0.0",
+  "description": "Tyme2 API for node.js",
+  "license": "ISC",
+  "repository": "patrickkahl/tyme2",
+  "author": {
+    "name": "Patrick Kahl",
+    "email": "Kahl.Patrick@googlemail.com",
+    "url": "github.com/patrickkahl"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "keywords": ["tyme2"],
+  "dependencies": {
+    "run-jxa": "^1.1.0"
+  }
+}

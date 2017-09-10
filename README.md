@@ -1,1 +1,3 @@
-# Tyme2
+# tyme2
+
+> Tyme2 API for node.js
