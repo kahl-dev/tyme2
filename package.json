@@ -1,6 +1,6 @@
 {
   "name": "tyme2",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Tyme2 API for node.js",
   "license": "ISC",
   "repository": "patrickkahl/tyme2",
@@ -12,9 +12,7 @@
   "engines": {
     "node": ">=4"
   },
-  "files": [
-		"index.js"
-  ],
+  "files": ["index.js"],
   "keywords": ["tyme2"],
   "dependencies": {
     "run-jxa": "^1.1.0"

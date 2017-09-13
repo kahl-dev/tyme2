@@ -5,12 +5,7 @@ tyme.projects = ({ completed = false } = {}) => {
   return runJxa(
     arg => {
       const tyme = Application('Tyme2');
-      const tymeProjects = tyme.projects.whose(arg)().map(project => ({
-        completed: project.completed(),
-        id: project.id(),
-        name: project.name(),
-        pcls: 'project',
-      }));
+      const tymeProjects = tyme.projects.whose(arg)().map(p => p.properties());
 
       return tymeProjects;
     },
@@ -24,12 +19,7 @@ tyme.projectById = id => {
       const tyme = Application('Tyme2');
       const project = tyme.projects.byId(id);
 
-      return {
-        completed: project.completed(),
-        id: project.id(),
-        name: project.name(),
-        pcls: 'project',
-      };
+      return project.properties();
     },
     [id]
   );
@@ -42,19 +32,16 @@ tyme.tasks = ({ completed = false } = {}) => {
       const tasks = tyme.projects.tasks.whose(arg)().reduce((arr, project) => {
         if (project.length) {
           arr.push(
-            ...project.map(task => ({
-              completed: task.completed(),
-              id: task.id(),
-              name: task.name(),
-              relatedprojectid: task.relatedprojectid(),
-              pcls: 'task',
-              lastUpdate: (taskRecord = task
+            ...project.map(task => {
+              const object = task.properties();
+              object['lastUpdate'] = (taskRecord = task
                 .taskrecords()
                 .slice(-1)
                 .pop())
                 ? taskRecord.timestart()
-                : undefined,
-            }))
+                : undefined;
+              return object;
+            })
           );
         }
         return arr;
@@ -76,19 +63,16 @@ tyme.taskById = id => {
       })().reduce((arr, project) => {
         if (project.length)
           arr.push(
-            ...project.map(task => ({
-              completed: task.completed(),
-              id: task.id(),
-              name: task.name(),
-              relatedprojectid: task.relatedprojectid(),
-              pcls: 'task',
-              lastUpdate: (taskRecord = task
+            ...project.map(task => {
+              const object = task.properties();
+              object['lastUpdate'] = (taskRecord = task
                 .taskrecords()
                 .slice(-1)
                 .pop())
                 ? taskRecord.timestart()
-                : undefined,
-            }))
+                : undefined;
+              return object;
+            })
           );
         return arr;
       }, [])[0];
@@ -101,23 +85,18 @@ tyme.taskRecordsByTaskId = (id, limit = false) => {
   return runJxa(
     (id, limit) => {
       const tyme = Application('Tyme2');
-      let taskRecords = tyme.projects.tasks
-        .whose({ id })
-        .taskrecords()
-        .filter(project => project.length)[0][0];
+      const task = tyme.projects.tasks.whose({ id })().filter(
+        project => project.length
+      )[0][0];
 
+      let taskRecords = task.taskrecords();
       if (limit) taskRecords = taskRecords.slice(-Math.abs(limit));
 
       const returnValue = {
         successful: true,
+        task: task.properties(),
         taskRecords:
-          taskRecords.map(taskRecord => ({
-            id: taskRecord.id(),
-            note: taskRecord.note(),
-            relatedprojectid: taskRecord.relatedprojectid(),
-            relatedtaskid: taskRecord.relatedtaskid(),
-            pcls: 'taskrecord',
-          })) || [],
+          taskRecords.map(taskRecord => taskRecord.properties()) || [],
       };
 
       return returnValue;
@@ -137,13 +116,7 @@ tyme.taskRecordById = id => {
 
       if (action) {
         const taskRecord = tyme.lastfetchedtaskrecord;
-        returnValue.taskRecord = {
-          id: taskRecord.id(),
-          note: taskRecord.note(),
-          relatedprojectid: taskRecord.relatedprojectid(),
-          relatedtaskid: taskRecord.relatedtaskid(),
-          pcls: 'taskrecord',
-        };
+        returnValue.taskRecord = taskRecord.properties();
       }
 
       return returnValue;
@@ -166,13 +139,7 @@ tyme.startTrackerForTaskId = (id, note) => {
             .whose({ id })[0]
             .get(0)
             .filter(task => task)[0];
-          returnValue.task = {
-            completed: task.completed(),
-            id: task.id(),
-            name: task.name(),
-            relatedprojectid: task.relatedprojectid(),
-            pcls: 'task',
-          };
+          returnValue.task = task.properties();
           returnValue.successful = true;
         }
       } else {
@@ -211,13 +178,7 @@ tyme.stopTrackerFortTaskId = () => {
           .get(0)
           .filter(task => task)[0];
 
-        returnValue.task = {
-          completed: task.completed(),
-          id: task.id(),
-          name: task.name(),
-          relatedprojectid: task.relatedprojectid(),
-          pcls: 'task',
-        };
+        returnValue.task = task.properties();
       }
 
       returnValue.successful = action;
