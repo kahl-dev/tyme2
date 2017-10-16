@@ -36,3 +36,23 @@ tyme
 //     console.log(tasks);
 //   })
 //   .catch(console.log);
+
+// Test default date logic.
+(function (tyme) {
+  let startDate, endDate = false;
+
+  endDate = endDate ? endDate : tyme.nextDateByDow(new Date(new Date(Date.now()).setHours(23,59,59,999)), 6);
+  startDate = startDate ? startDate : tyme.nextDateByDow(new Date(new Date(endDate).setHours(0,0,0,0) - 604800000), 0);
+
+  console.log('Start:', startDate.toString());
+  console.log('  End:', endDate.toString(), "\n");
+}(tyme));
+
+// Test getting filtered task records.
+tyme
+  .getTaskRecords(false, false, false, false, false, false, false, false, 10) // Start 7 days ago.
+  .then(taskRecordIds => {
+    console.log('Task Records: ', taskRecordIds);
+    console.log('Task Record count: ', taskRecordIds.length);
+  })
+  .catch(console.log);
