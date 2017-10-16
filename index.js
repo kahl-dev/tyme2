@@ -105,6 +105,77 @@ tyme.taskRecordsByTaskId = (id, limit = false) => {
   );
 };
 
+/**
+ * Gets task records filtered by the given arguments.
+ *
+ * @param {string|Date} startDate
+ *   Retreive records that begin on this date.
+ * @param {string|Date} endDate
+ *   Get records that started before this date.
+ * @param {string} categoryID
+ *   Only fetch task records for a given category.
+ * @param {string} projectID
+ *   Only fetch task records for a given project.
+ * @param {string} taskID
+ *   Only fetch task records for a given task.
+ * @param {string} type
+ *   Only fetch task records for a given type (timed, mileage or fixed).
+ * @param {bool} onlyBillable
+ *  Only fetch billable task records.
+ * @param {int} offset
+ *   The Start position of task records results (used for paging).
+ * @param {int} limit
+ *   The max number of task records results (used for paging).
+ *
+ * @return {array|null}
+ *   An array of task record properties.
+ */
+tyme.getTaskRecords = (startDate = false, endDate = false, categoryID = false, projectID = false, taskID = false, type = false, onlyBillable = false, offset = false, limit = false) => {
+  // Set the default dates to Sun - Sat this week.
+  endDate = endDate ? endDate : tyme.nextDateByDow(new Date(new Date(Date.now()).setHours(23,59,59,999)), 6);
+  startDate = startDate ? startDate : tyme.nextDateByDow(new Date(new Date(endDate).setHours(0,0,0,0) - 604800000), 0);
+
+  return runJxa(
+    (startdate, enddate, categoryid, projectid, taskid, type, onlybillable, offset, limit) => {
+      const tymeApp = Application('Tyme2');
+      // Result buffer.
+      let taskRecords = [];
+
+      // Run the query based on params.
+      let success = tymeApp.gettaskrecordids({
+        "startdate": new Date(startdate),
+        "enddate": new Date(enddate),
+        "categoryid": categoryid,
+        "projectid": projectid,
+        "taskid": taskid,
+        "type": type,
+        "onlybillable": onlybillable
+      });
+      // Make sure the test succeded.
+      if (success) {
+        // Get an array of task records.
+        let taskRecordIds = tymeApp.fetchedtaskrecordids.get();
+        // Limit results if paging args are present.
+        if (offset || limit) {
+          //Convert the limit to an end value.
+          taskRecordIds = taskRecordIds.slice(
+            Math.abs(offset ? offset : 0),
+            (limit ? Math.abs(offset) + Math.abs(limit) : undefined)
+          );
+        };
+        // Convert the task record ids to task record objects.
+        taskRecordIds.forEach(function (id) {
+          tymeApp.getrecordwithid(id);
+          taskRecords.push(tymeApp.lastfetchedtaskrecord.properties());
+        });
+      }
+
+      return taskRecords;
+    },
+    [startDate, endDate, categoryID, projectID, taskID, type, onlyBillable, offset, limit]
+  );
+};
+
 tyme.taskRecordById = id => {
   return runJxa(
     id => {
@@ -189,3 +260,21 @@ tyme.stopTrackerFortTaskId = () => {
     return returnValue;
   });
 };
+
+/**
+ * [Helper] Gets a date for the next day of the week (DoW) after a given date.
+ *
+ * @param {Date} date
+ *   The starting point for locating the next DoW.
+ * @param {Date} dayOfWeek
+ *   Day of the week by number (0-6) (0=Sunday...6=Saturday).
+ *
+ * @returns {Date}
+ *   A date for the next DoW.
+ */
+tyme.nextDateByDow = (date, dayOfWeek) => {
+  var resultDate = new Date(date.getTime());
+  resultDate.setDate(date.getDate() + (7 + dayOfWeek - date.getDay()) % 7);
+  return resultDate;
+
+}
