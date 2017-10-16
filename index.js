@@ -262,12 +262,12 @@ tyme.stopTrackerFortTaskId = () => {
 };
 
 /**
- * [Helper] Gets a date for a day of the week (DoW) given a date and the DoW (0-6).
+ * [Helper] Gets a date for the next day of the week (DoW) after a given date.
  *
  * @param {Date} date
  *   The starting point for locating the next DoW.
  * @param {Date} dayOfWeek
- *   Day of the week by number. i.e. 0=Sunday...6=Saturday.
+ *   Day of the week by number (0-6) (0=Sunday...6=Saturday).
  *
  * @returns {Date}
  *   A date for the next DoW.

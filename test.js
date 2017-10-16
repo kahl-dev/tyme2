@@ -50,7 +50,7 @@ tyme
 
 // Test getting filtered task records.
 tyme
-  .getTaskRecords(false, false, false, false, false, false, false, false, 10) // Start 7 days ago.
+  .getTaskRecords(false, false, false, false, false, false, false, false, 10) // Limit to 10 items.
   .then(taskRecordIds => {
     console.log('Task Records: ', taskRecordIds);
     console.log('Task Record count: ', taskRecordIds.length);
